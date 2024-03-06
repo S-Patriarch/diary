@@ -12,8 +12,18 @@ int main(int argc, char** argv)
    std::vector<std::string> args(argv,argv+argc);
 
    dr::Diary dr;
-   std::string s = dr.mode_help();
-
+   if (dr.open_file_diary()) {
+      // ... режим авторизации пользователя
+      // ...
+      for (;;) {
+         std::string s = dr.mode_help();
+         if (s=="q" || s=="!q" || s=="wq") {
+            dr.mode_quit(s);
+            break;
+         }
+      }
+   }
+   else std::cout << "E: Не могу открыть файл дневника.\n";
    return 0;
 }
 
