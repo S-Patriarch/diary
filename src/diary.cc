@@ -60,5 +60,32 @@ namespace dr {
       std::cout << pl::mr::clrscr << pl::mr::crss;
       if (_fsd.is_open()) _fsd.close();
    }
+   //---------------------------------------------------------------------------
+   bool Diary::mode_authorization()
+      // режим авторизации пользователя
+   {
+      bool res {true};
+      if (_f_diary_path!="") {
+         pl::Conio con; 
+         std::cout << pl::mr::clrscr;
+         info_logo();
+         std::cout << '\n';
+         std::cout << "Пароль: ";
+         std::string s_pass = con.get_hidden_input();
+         std::string s_pass_hash = sha_256(s_pass);
+
+         std::string file_path = _f_diary_path+_f_shadow;
+         std::ifstream in;
+         in.open(file_path);
+         std::string line {};
+         in >> line;
+         in.close();
+         std::cout << '\n'
+                   << "s_pass_hash " << s_pass_hash << '\n'
+                   << "line        " << line << '\n';
+      }
+      else res = false; 
+      return res; 
+   }
 }
 
