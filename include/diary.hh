@@ -20,11 +20,12 @@
 #include <thread>
 #include <chrono>
 #include <sys/stat.h>
+#include <array>
 ////////////////////////////////////////////////////////////////////////////////
 namespace dr {
    class Diary final {
-      std::string _f_shadow = "/.shadow";
       std::string _f_diary = "/diary.log";
+      std::string _f_shadow = "/.shadow";
       std::string _f_rc = "/diaryrc";
       std::string _f_diary_path;
       std::fstream _fsd; // файловый поток дневника
@@ -42,13 +43,13 @@ namespace dr {
             _f_diary_path = std::string(dir_home)+"/.diary";
       }
       ~Diary() noexcept = default;
-      bool open_file_diary();       // открытие или создание файла дневника
+      bool mode_check_files();      // режим проверки служебных файлов
+      bool open_file_diary();       // открытие файла дневника
       std::string mode_help();      // режим помощи
       bool mode_authorization();    // режим авторизации пользователя
+      bool mode_input();            // режим ввода записей дневника
+      bool mode_viewing();          // режим просмотра записей дневника
       void mode_quit(std::string&); // режим выхода
-      void mode_check();            // режим проверки служебных файлов
-      void mode_viewing();          // режим просмотра записей дневника
-      void mode_input();            // режим ввода записей дневника
    };
 }
 #endif // DIARY_HH

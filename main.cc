@@ -12,21 +12,20 @@ int main(int argc, char** argv)
    std::vector<std::string> args(argv,argv+argc);
 
    dr::Diary dr;
-   if (dr.open_file_diary()) {
-      // ... режим авторизации пользователя
-      // ...
-      bool is = dr.mode_authorization();
-      std::cout << is << '\n';
-      /*
-      for (;;) {
-         std::string s = dr.mode_help();
-         if (s=="q" || s=="!q" || s=="wq") {
-            dr.mode_quit(s);
-            break;
+   if (!dr.mode_check_files()) 
+      std::cout << "E: Сбой при проверке служебных файлов.\n";
+   else {
+      if (dr.open_file_diary()) {
+         for (;;) {
+            std::string s = dr.mode_help();
+            if (s=="q" || s=="!q" || s=="wq") {
+               dr.mode_quit(s);
+               break;
+            }
          }
-      }*/
+      }
+      else std::cout << "E: Не могу открыть файл дневника.\n";
    }
-   else std::cout << "E: Не могу открыть файл дневника.\n";
    return 0;
 }
 

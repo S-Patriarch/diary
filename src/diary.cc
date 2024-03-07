@@ -10,19 +10,36 @@
 #endif
 ////////////////////////////////////////////////////////////////////////////////
 namespace dr {
-   bool Diary::open_file_diary() 
-      // открытие или создание файла дневника
+   bool Diary::mode_check_files()
+      // режим проверки служебных файлов
+      // если какого-то файла не оказывается, то он создается
    {
-      bool res {true};
       if (_f_diary_path!="") {
-         const char* sp = _f_diary_path.c_str();
-         mkdir(sp,0700);
-         std::string file_path = _f_diary_path+_f_diary;
-         _fsd.open(file_path, std::ios::in | std::ios::out | std::ios::app);       
-         if (!_fsd.is_open()) res = false;
+         const char* ps = _f_diary_path.c_str();
+         mkdir(ps,0700);
+
+         std::array<std::string,3> arr;
+         arr[0] = _f_diary_path+_f_diary;
+         arr[1] = _f_diary_path+_f_shadow;
+         arr[2] = _f_diary_path+_f_rc;
+
+         std::fstream fs;        
+         for (const auto& s : arr) {
+            fs.open(s, std::ios::in | std::ios::out | std::ios::app);       
+            if (!fs.is_open()) return false;
+            fs.close();
+         }
       }
-      else res = false;
-      return res;
+      return true;
+   }
+   //---------------------------------------------------------------------------
+   bool Diary::open_file_diary() 
+      // открытие файла дневника
+   {
+      std::string file_path = _f_diary_path+_f_diary;
+      _fsd.open(file_path, std::ios::in | std::ios::out | std::ios::app);       
+      if (!_fsd.is_open()) return false;
+      return true;
    }     
    //---------------------------------------------------------------------------
    std::string Diary::mode_help()
@@ -31,15 +48,19 @@ namespace dr {
    {
       std::cout << pl::mr::clrscr;
       info_logo();
-      std::cout << '\n';
-      std::cout << "h   вызов информации об управляющих конандах\n"
-                << "q   выход из дневника\n"
-                << "!q  выход без записи изменений\n"
-                << "wq  выход с записью изменений\n"
-                << "i   режим ввода записей дневника\n"
-                << "w   запись введенной информации\n"
-                << "dd  удаление последней введенной строки информации\n"
-                << "v   режим просмотра записей дневника\n";
+      std::cout << '\n'
+                << "Команды:\n";
+      std::cout << "h    вызов информации об управляющих конандах\n"
+                << "q    выход из дневника\n"
+                << "!q   выход без записи изменений\n"
+                << "wq   выход с записью изменений\n"
+                << "i    режим ввода записей дневника\n"
+                << "w    запись введенной информации\n"
+                << "dd   удаление последней введенной строки информации\n"
+                << "v    режим просмотра записей дневника\n";
+      std::cout << '\n'
+                << "Настройки:\n";
+      std::cout << "set password   установка пароля\n";
       std::cout << "\n:";
       std::string scom {};
       std::cin >> scom;
@@ -64,7 +85,7 @@ namespace dr {
    bool Diary::mode_authorization()
       // режим авторизации пользователя
    {
-      bool res {true};
+      bool res {false};
       if (_f_diary_path!="") {
          pl::Conio con; 
          std::cout << pl::mr::clrscr;
@@ -83,8 +104,34 @@ namespace dr {
          std::cout << '\n'
                    << "s_pass_hash " << s_pass_hash << '\n'
                    << "line        " << line << '\n';
+         res = true;
       }
-      else res = false; 
+      return res; 
+   }
+   //---------------------------------------------------------------------------
+   bool Diary::mode_input()
+      // режим ввода записей дневника
+   {
+      bool res {false};
+      if (_f_diary_path!="") {
+         std::cout << pl::mr::clrscr;
+         info_logo();
+
+         res = true;
+      }
+      return res; 
+   }
+   //---------------------------------------------------------------------------
+   bool Diary::mode_viewing()
+      // режим просмотра записей дневника
+   {
+      bool res {false};
+      if (_f_diary_path!="") {
+         std::cout << pl::mr::clrscr;
+         info_logo();
+
+         res = true;
+      }
       return res; 
    }
 }
