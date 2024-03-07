@@ -25,7 +25,7 @@
 namespace dr {
    class Diary final {
       std::string _f_diary = "/diary.log";
-      std::string _f_shadow = "/.shadow";
+      std::string _f_shadow = "/shadow";
       std::string _f_rc = "/diaryrc";
       std::string _f_diary_path;
       std::fstream _fsd; // файловый поток дневника
