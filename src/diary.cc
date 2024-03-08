@@ -76,9 +76,8 @@ namespace dr {
       if (s=="wq") {
          std::cout << _buffer.size() << " строк записано\n";
       }
-      std::cout << "До новых встреч...\n";
-      std::this_thread::sleep_for(std::chrono::seconds{1}); 
-      std::cout << pl::mr::clrscr << pl::mr::crss;
+      std::cout << "До новых встреч...\n\n";
+      std::cout << pl::mr::crss;
       if (_fsd.is_open()) _fsd.close();
    }
    //---------------------------------------------------------------------------
@@ -86,53 +85,71 @@ namespace dr {
       // режим авторизации пользователя
    {
       bool res {false};
-      if (_f_diary_path!="") {
-         pl::Conio con; 
-         std::cout << pl::mr::clrscr;
-         info_logo();
-         std::cout << '\n';
+      
+      pl::Conio con; 
+      std::cout << pl::mr::clrscr;
+      info_logo();
+      std::cout << '\n';
+
+      // открываем файл .shadow
+      std::string file_path = _f_diary_path+_f_shadow;
+      std::fstream file;
+      file.open(file_path,std::ios::in | std::ios::out);
+      // перемещаем указатель чтения в конец файла
+      file.seekg(0,std::ios::end);
+      // проверяем размер файла
+      if (file.tellg()==0) {
+         // файл пуст
+         // проходим процедуру регисрации
+         std::cout << "Процедура регистрации...\n";
+         std::cout << "\nНовый пароль: ";
+         std::string new_pass1 = con.get_hidden_input();
+         std::cout << "\nПодтверждение пароля: ";
+         std::string new_pass2 = con.get_hidden_input();
+         if (new_pass1==new_pass2) {
+            std::string new_pass_hash = sha_256(new_pass1);
+            file.seekg(0,std::ios::beg);
+            file << new_pass_hash;
+            res = true;
+         }
+         else {
+            std::cout << pl::mr::crsh;
+            std::cout << "\n\nE: Сбой при проверке подтверждения пароля.\n";
+            std::this_thread::sleep_for(std::chrono::seconds{3}); 
+         }
+      }
+      else {
+         // файл содержит данные
          std::cout << "Пароль: ";
          std::string s_pass = con.get_hidden_input();
          std::string s_pass_hash = sha_256(s_pass);
-
-         std::string file_path = _f_diary_path+_f_shadow;
-         std::ifstream in;
-         in.open(file_path);
          std::string line {};
-         in >> line;
-         in.close();
-         std::cout << '\n'
-                   << "s_pass_hash " << s_pass_hash << '\n'
-                   << "line        " << line << '\n';
-         res = true;
+         // перемещаем указатель чтения в начало файла
+         file.seekg(0,std::ios::beg);
+         file >> line;
+         if (s_pass_hash==line) res = true;
+         else {
+            std::cout << pl::mr::crsh;
+            std::cout << "\n\nE: Сбой при проверке подлинности пароля.\n";
+            std::this_thread::sleep_for(std::chrono::seconds{3}); 
+         }
       }
+      file.close();
       return res; 
    }
    //---------------------------------------------------------------------------
-   bool Diary::mode_input()
+   void Diary::mode_input()
       // режим ввода записей дневника
    {
-      bool res {false};
-      if (_f_diary_path!="") {
-         std::cout << pl::mr::clrscr;
-         info_logo();
-
-         res = true;
-      }
-      return res; 
+      std::cout << pl::mr::clrscr;
+      info_logo();
    }
    //---------------------------------------------------------------------------
-   bool Diary::mode_viewing()
+   void Diary::mode_viewing()
       // режим просмотра записей дневника
    {
-      bool res {false};
-      if (_f_diary_path!="") {
-         std::cout << pl::mr::clrscr;
-         info_logo();
-
-         res = true;
-      }
-      return res; 
+      std::cout << pl::mr::clrscr;
+      info_logo();
    }
 }
 

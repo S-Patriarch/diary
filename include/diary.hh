@@ -46,10 +46,10 @@ namespace dr {
       bool mode_check_files();      // режим проверки служебных файлов
       bool open_file_diary();       // открытие файла дневника
       std::string mode_help();      // режим помощи
-      bool mode_authorization();    // режим авторизации пользователя
-      bool mode_input();            // режим ввода записей дневника
-      bool mode_viewing();          // режим просмотра записей дневника
       void mode_quit(std::string&); // режим выхода
+      bool mode_authorization();    // режим авторизации пользователя
+      void mode_input();            // режим ввода записей дневника
+      void mode_viewing();          // режим просмотра записей дневника
    };
 }
 #endif // DIARY_HH

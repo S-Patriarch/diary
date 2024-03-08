@@ -15,16 +15,22 @@ int main(int argc, char** argv)
    if (!dr.mode_check_files()) 
       std::cout << "E: Сбой при проверке служебных файлов.\n";
    else {
-      if (dr.open_file_diary()) {
-         for (;;) {
-            std::string s = dr.mode_help();
-            if (s=="q" || s=="!q" || s=="wq") {
-               dr.mode_quit(s);
-               break;
+      if (dr.mode_authorization()) {
+         if (dr.open_file_diary()) {
+            for (;;) {
+               std::string s = dr.mode_help();
+               if (s=="q" || s=="!q" || s=="wq") {
+                  dr.mode_quit(s);
+                  break;
+               }
             }
          }
+         else std::cout << "E: Не могу открыть файл дневника.\n";
       }
-      else std::cout << "E: Не могу открыть файл дневника.\n";
+      else {
+         std::string s {"q"};
+         dr.mode_quit(s);
+      }
    }
    return 0;
 }
