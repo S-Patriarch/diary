@@ -50,14 +50,14 @@ namespace dr {
       info_logo();
       std::cout << '\n'
                 << "Основные команды:\n";
-      std::cout << "  h  - вызов информации об управляющих конандах\n"
-                << "  q  - выход из дневника\n"
-                << "  !q - выход без записи изменений\n"
-                << "  wq - выход с записью изменений\n"
-                << "  i  - режим ввода записей дневника\n"
-                << "  w  - запись введенной информации\n"
-                << "  dd - удаление последней введенной строки информации\n"
-                << "  v  - режим просмотра записей дневника\n";
+      std::cout << "  v    - режим просмотра записей дневника\n"
+                << "  i    - режим ввода записей дневника\n"
+                << "    dd - удаление последней записи дневника\n"
+                << "  w    - запись введенной информации\n"
+                << "  q    - выход из дневника\n"
+                << "    q! - выход без записи изменений\n"
+                << "    wq - выход с записью изменений\n"
+                << "  h    - вызов информации\n";
       std::cout << '\n'
                 << "Настройки:\n";
       std::cout << "  set password - установка пароля\n";
@@ -70,14 +70,39 @@ namespace dr {
    void Diary::mode_quit(std::string& s)
       // режим выхода из дневника
    {
-      std::cout << pl::mr::crsh << pl::mr::clrscr;
+      std::cout << pl::mr::clrscr;
       info_logo();
       std::cout << '\n';
-      if (s=="wq") {
-         std::cout << _buffer.size() << " строк записано\n";
+
+      if (!_buffer.empty() && s=="q") {
+         for (;;) {
+            std::cout << "E: Изменения не сохранены "
+                      << "(введите q!, чтобы обойти проверку).\n";
+            std::string sq {};
+            std::cout << ':';
+            std::cin >> sq;
+            if (sq=="q!") {
+               _buffer.clear();
+               std::cout << pl::mr::clrscr;
+               info_logo();
+               std::cout << '\n';
+               break;
+            }
+            std::cout << pl::mr::clrscr;
+            info_logo();
+            std::cout << '\n';
+         }
+      }
+      else if (!_buffer.empty() && s=="q!") {
+         _buffer.clear();
+      }
+      else if (!_buffer.empty() && s=="wq") {
+         for (const auto& lst : _buffer) 
+            _fsd << lst << '\n';
+         std::cout << _buffer.size() << "L записано\n";
+         _buffer.clear();
       }
       std::cout << "До новых встреч...\n\n";
-      std::cout << pl::mr::crss;
       if (_fsd.is_open()) _fsd.close();
    }
    //---------------------------------------------------------------------------
@@ -134,6 +159,7 @@ namespace dr {
             std::this_thread::sleep_for(std::chrono::seconds{3}); 
          }
       }
+      std::cout << pl::mr::crss;
       file.close();
       return res; 
    }
@@ -141,8 +167,13 @@ namespace dr {
    void Diary::mode_input()
       // режим ввода записей дневника
    {
-      std::cout << pl::mr::clrscr;
-      info_logo();
+      //std::cout << pl::mr::clrscr;
+      //info_logo();
+      std::string sl {}; // ---debug---
+      for (int i=1; i!=11; ++i) { // ---debug---
+         sl = "Строка текущего буффера дневника "+std::to_string(i); // ---debug---
+         _buffer.emplace_back(sl); // ---debug---
+      } // ---debug---
    }
    //---------------------------------------------------------------------------
    void Diary::mode_viewing()

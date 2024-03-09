@@ -17,9 +17,11 @@ int main(int argc, char** argv)
    else {
       if (dr.mode_authorization()) {
          if (dr.open_file_diary()) {
+            dr.mode_input(); // ---debug---
+            std::string s = dr.mode_help();
             for (;;) {
-               std::string s = dr.mode_help();
-               if (s=="q" || s=="!q" || s=="wq") {
+               if (s=="h") s = dr.mode_help();
+               if (s=="q" || s=="q!" || s=="wq") {
                   dr.mode_quit(s);
                   break;
                }
