@@ -28,10 +28,11 @@ namespace dr {
       std::string _f_shadow = "/shadow";
       std::string _f_rc = "/diaryrc";
       std::string _f_diary_path;
+      std::string _delimiter {"##"}; // разделитель дней дневника
+      std::string _today {}; // дата текущего дня
       std::fstream _fsd; // файловый поток дневника
       std::list<std::string> _buffer; // буффер записей дневника
-      void buffer_write();  // пишет буффер записей дневника в файл
-      void buffer_delete(); // удаляет последнию введенную строку буффера
+      bool _day_flag {false}; // флаг записи дня
    public:
       Diary() 
       {
@@ -43,6 +44,7 @@ namespace dr {
             _f_diary_path = std::string(dir_home)+"/.diary";
       }
       ~Diary() noexcept = default;
+      void set_today();
       bool mode_check_files();      // режим проверки служебных файлов
       bool open_file_diary();       // открытие файла дневника
       std::string mode_help();      // режим помощи
@@ -50,6 +52,9 @@ namespace dr {
       bool mode_authorization();    // режим авторизации пользователя
       void mode_input();            // режим ввода записей дневника
       void mode_viewing();          // режим просмотра записей дневника
+      void buffer_write();          // пишет буффер записей дневника в файл
+      void buffer_delete();         // удаляет последнию введенную строку
+      void set_password();          // установка пароля
    };
 }
 #endif // DIARY_HH

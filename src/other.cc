@@ -32,7 +32,7 @@ namespace dr {
       std::chrono::system_clock::time_point today = std::chrono::system_clock::now();
       std::time_t t = std::chrono::system_clock::to_time_t(today);
       std::stringstream ss;
-      ss << std::put_time(std::localtime(&t),"%Y-%m-%d");
+      ss << std::put_time(std::localtime(&t),"%d-%m-%Y");
       std::string res = ss.str();
       return res;
    }

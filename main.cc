@@ -17,14 +17,18 @@ int main(int argc, char** argv)
    else {
       if (dr.mode_authorization()) {
          if (dr.open_file_diary()) {
-            dr.mode_input(); // ---debug---
-            std::string s = dr.mode_help();
+            dr.set_today();
+            std::string s {};
+            s = dr.mode_help();
             for (;;) {
-               if (s=="h") s = dr.mode_help();
-               if (s=="q" || s=="q!" || s=="wq") {
+               if (std::strncmp("i",s.c_str(),1)==0) dr.mode_input();
+               else if (std::strncmp("q",s.c_str(),1)==0   
+                        || std::strncmp("q!",s.c_str(),2)==0  
+                        || std::strncmp("wq",s.c_str(),2)==0) {
                   dr.mode_quit(s);
                   break;
                }
+               s = dr.mode_help();
             }
          }
          else std::cout << "E: Не могу открыть файл дневника.\n";
