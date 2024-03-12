@@ -2,6 +2,7 @@
 // (c) 2024 S-Patriarch
 //
 #include <chrono>
+#include <pl/color.hh>
 #ifndef DIARY_HH
 #include "../include/diary.hh"
 #endif
@@ -10,8 +11,7 @@
 #endif
 ////////////////////////////////////////////////////////////////////////////////
 namespace dr {
-   void Diary::set_today()
-   {_today = get_date();}
+   void Diary::set_today() {_today = get_date();}
    //---------------------------------------------------------------------------
    bool Diary::mode_check_files()
       // режим проверки служебных файлов
@@ -44,75 +44,6 @@ namespace dr {
       if (!_fsd.is_open()) return false;
       return true;
    }     
-   //---------------------------------------------------------------------------
-   std::string Diary::mode_help()
-      // вызов информации об управляющих командах дневника
-      // возвращает введенную командную строку
-   {
-      pl::Conio con;
-      std::cout << pl::mr::clrscr;
-      info_logo();
-      std::cout << '\n'
-                << "Основные команды:\n";
-      std::cout << "  v  - режим просмотра записей дневника\n"
-                << "  i  - режим ввода записей дневника\n"
-                << "  q  - выход из дневника\n"
-                << "  q! - выход без записи изменений\n"
-                << "  wq - выход с записью изменений\n"
-                << "  h  - вызов информации\n";
-      std::cout << '\n'
-                << "Настройки:\n";
-      std::cout << "  set password - установка пароля\n";
-      std::cout << "\n:";
-      std::string scom {};
-      scom = con.get_line(16);
-      return scom;
-   }
-   //---------------------------------------------------------------------------
-   void Diary::mode_quit(std::string& s)
-      // режим выхода из дневника
-   {
-      pl::Conio con;
-      std::cout << pl::mr::clrscr;
-      info_logo();
-      std::cout << '\n';
-
-      if (!_buffer.empty() && std::strncmp("q",s.c_str(),1)==0) {
-         for (;;) {
-            std::cout << "E: Изменения не сохранены "
-                      << "(введите q!, чтобы обойти проверку).\n";
-            std::string sq {};
-            std::cout << ':';
-            sq = con.get_line(3);
-            if (std::strncmp("q!",sq.c_str(),2)==0) {
-               _buffer.clear();
-               std::cout << pl::mr::clrscr;
-               info_logo();
-               std::cout << '\n';
-               break;
-            }
-            std::cout << pl::mr::clrscr;
-            info_logo();
-            std::cout << '\n';
-         }
-      }
-      else if (!_buffer.empty() && std::strncmp("q!",s.c_str(),2)==0) {
-         _buffer.clear();
-      }
-      else if (!_buffer.empty() && std::strncmp("wq",s.c_str(),2)==0) {
-         if (!_day_flag) {
-            _fsd << _delimiter << '\n' << _today  << '\n';
-            _day_flag = true;
-         }
-         for (const auto& lst : _buffer) 
-            _fsd << lst;
-         std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
-                   << _buffer.size() << "L записано\n";
-         _buffer.clear();
-      }
-      std::cout << "До новых встреч...\n\n";
-      if (_fsd.is_open()) _fsd.close();
-   }
    //---------------------------------------------------------------------------
    bool Diary::mode_authorization()
       // режим авторизации пользователя
@@ -174,8 +105,107 @@ namespace dr {
    //---------------------------------------------------------------------------
    void Diary::set_password()
       // установка (замена) пароля пользователя дневника
-   {}
+   {
+      pl::Conio con; 
+      std::cout << pl::mr::clrscr;
+      info_logo();
+      std::cout << '\n';
+      std::cout << "Процедура установки пароля...\n";
+      std::cout << "\nНовый пароль: ";
+      std::string new_pass1 = con.get_hidden_input();
+      std::cout << "\nПодтверждение пароля: ";
+      std::string new_pass2 = con.get_hidden_input();
+
+      if (new_pass1==new_pass2) {
+         std::string new_pass_hash = sha_256(new_pass1);
+         std::string file_path = _f_diary_path+_f_shadow;
+         std::fstream file;
+         file.open(file_path,std::ios::out);
+         file << new_pass_hash;
+         file.close();
+      }
+      else {
+         std::cout << pl::mr::crsh;
+         std::cout << "\n\nE: Сбой при проверке подтверждения пароля.\n";
+         std::this_thread::sleep_for(std::chrono::seconds{3}); 
+         std::cout << pl::mr::crss;
+      }
+   }
    //---------------------------------------------------------------------------
+   std::string Diary::mode_help()
+      // вызов информации об управляющих командах дневника
+      // возвращает введенную командную строку
+   {
+      pl::Conio con;
+      std::cout << pl::mr::clrscr;
+      info_logo();
+      std::cout << '\n'
+                << "Основные команды:\n";
+      std::cout << "  v  - режим просмотра записей дневника\n"
+                << "  i  - режим ввода записей дневника\n"
+                << "  q  - выход из дневника\n"
+                << "  q! - выход без записи изменений\n"
+                << "  wq - выход с записью изменений\n"
+                << "  h  - вызов информации\n";
+      std::cout << '\n'
+                << "Настройки:\n";
+      std::cout << "  set password - установка пароля\n";
+      std::cout << "\n:";
+      std::string scom {};
+      scom = con.get_line(16);
+      return scom;
+   }
+   //---------------------------------------------------------------------------
+   void Diary::mode_quit(std::string& s)
+      // режим выхода из дневника
+   {
+      pl::Conio con;
+      std::cout << pl::mr::clrscr;
+      info_logo();
+      std::cout << '\n';
+
+      if (!_buffer.empty() && std::strncmp("q",s.c_str(),1)==0) {
+         for (;;) {
+            std::cout << pl::mr::bold << "W" << pl::mr::reset
+                      << ": Изменения не сохранены "
+                      << "(введите q!, чтобы обойти проверку).\n";
+            std::string sq {};
+            std::cout << ':';
+            sq = con.get_line(3);
+            if (std::strncmp("q!",sq.c_str(),2)==0) {
+               _buffer.clear();
+               std::cout << pl::mr::clrscr;
+               info_logo();
+               std::cout << '\n';
+               break;
+            }
+            std::cout << pl::mr::clrscr;
+            info_logo();
+            std::cout << '\n';
+         }
+      }
+      else if (!_buffer.empty() && std::strncmp("q!",s.c_str(),2)==0) {
+         _buffer.clear();
+      }
+      else if (!_buffer.empty() && std::strncmp("wq",s.c_str(),2)==0) {
+         if (open_file_diary()) {
+            if (!_day_flag) {
+               _fsd << _delimiter << '\n' << _today  << '\n';
+               _day_flag = true;
+            }
+            for (const auto& lst : _buffer) 
+               _fsd << lst;
+            std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
+                      << _buffer.size() << "L записано\n";
+            _buffer.clear();
+            _fsd.close();
+         }
+         else 
+            std::cout << "E: Не могу открыть файл дневника.\n";
+      }
+      std::cout << "До новых встреч...\n\n";
+   }
+  //---------------------------------------------------------------------------
    void Diary::mode_input()
       // режим ввода записей дневника
    {
@@ -209,25 +239,63 @@ namespace dr {
          }
          else if (std::strncmp("ww",str.c_str(),2)==0) {
             _buffer.pop_back();
-            if (!_buffer.empty()) {
-               if (!_day_flag) {
-                  _fsd << _delimiter << '\n' << _today  << '\n';
-                  _day_flag = true;
+            if (open_file_diary()) {
+               if (!_buffer.empty()) {
+                  if (!_day_flag) {
+                     _fsd << _delimiter << '\n' << _today  << '\n';
+                     _day_flag = true;
+                  }
+                  for (const auto& lst : _buffer) 
+                     _fsd << lst;
+                  std::cout << pl::mr::bold  << "W" << pl::mr::reset << ": " 
+                            << _buffer.size() << "L записано\n";
+                  _buffer.clear();
                }
-               for (const auto& lst : _buffer) 
-                  _fsd << lst;
-               std::cout << pl::mr::bold  << "W" << pl::mr::reset << ": " 
-                         << _buffer.size() << "L записано\n";
-               _buffer.clear();
+               _fsd.close();
             }
+            else
+               std::cout << "E: Не могу открыть файл дневника.\n";
          }
-         str = "";
       }   
    }
    //---------------------------------------------------------------------------
    void Diary::mode_viewing()
       // режим просмотра записей дневника
    {
+      pl::Conio con;
+ 
+      if (!_buffer.empty()) {
+         for (;;) {
+            std::cout << pl::mr::clrscr;
+            info_logo();
+            std::cout << '\n';
+            std::cout << pl::mr::bold << "W" << pl::mr::reset
+                      << ": Изменения не сохранены, сохранить y/n: ";
+            std::string yn = con.get_line(2);
+            if (std::strncmp("n",yn.c_str(),1)==0) {
+               _buffer.clear();
+               break;
+            }
+            else if (std::strncmp("y",yn.c_str(),1)==0) {
+               if (open_file_diary()) {
+                  if (!_day_flag) {
+                     _fsd << _delimiter << '\n' << _today  << '\n';
+                     _day_flag = true;
+                  }
+                  for (const auto& lst : _buffer) 
+                     _fsd << lst;
+                  std::cout << pl::mr::bold  << "W" << pl::mr::reset << ": " 
+                            << _buffer.size() << "L записано\n";
+                  _buffer.clear();
+                  _fsd.close();
+               }
+               else
+                  std::cout << "E: Не могу открыть файл дневника.\n";
+               break;
+            }
+         }
+      }
+
       std::cout << pl::mr::clrscr;
       info_logo();
       std::cout << '\n';
@@ -235,25 +303,45 @@ namespace dr {
                 << "-- ПРОСМОТР --\n"
                 << pl::mr::reset;
       std::cout << "Допустимые команды:\n"
-                << "  exit - выход из режима\n";
+                << "  дд-мм-гггг - дата просматриваемых записей\n"
+                << "  exit       - выход из режима\n";
       std::cout << '\n';
 
-   }
-   //---------------------------------------------------------------------------
-   void Diary::buffer_write()
-      // пишет буффер записей дневника в файл
-   {
-      if (!_buffer.empty()) {
-         if (!_day_flag) {
-            _fsd << _delimiter << '\n' << _today  << '\n';
-            _day_flag = true;
+      for (;;) {
+         std::cout << ":";
+         std::string str {};
+         str = con.get_line(11);
+         if (std::strncmp("exit",str.c_str(),4)==0) break;
+         else {
+            if (!open_file_diary())
+               std::cout << "E: Не могу открыть файл дневника.\n";
+            else {
+               std::string line {};
+               while (std::getline(_fsd,line)) {
+                  if (std::strncmp(str.c_str(),line.c_str(),10)==0) {
+                     while (std::getline(_fsd,line)) {
+                        if (std::strncmp(_delimiter.c_str(),line.c_str(),2)==0
+                           || _fsd.eof()) break;
+                        else {
+                           std::string sl = std::string(line)+'\n';
+                           _buffer.emplace_back(sl);
+                        }
+                     }
+                  }
+               }
+               if (_buffer.empty()) {
+                  std::cout << pl::mr::bold << "W" << pl::mr::reset
+                            << ": Записи за искомый день отсутствуют.\n";
+               } 
+               else {
+                  for (const auto& lst : _buffer)
+                     std::cout << lst;
+                  _buffer.clear();
+               }
+               _fsd.close();
+            }
          }
-         for (const auto& lst : _buffer) 
-            _fsd << lst;
-         std::cout << pl::mr::bold  << "W" << pl::mr::reset << ": " 
-                   << _buffer.size() << "L записано\n";
-         _buffer.clear();
-      }
+      } 
    }
 }
 

@@ -16,22 +16,22 @@ int main(int argc, char** argv)
       std::cout << "E: Сбой при проверке служебных файлов.\n";
    else {
       if (dr.mode_authorization()) {
-         if (dr.open_file_diary()) {
-            dr.set_today();
-            std::string s {};
-            s = dr.mode_help();
-            for (;;) {
-               if (std::strncmp("i",s.c_str(),1)==0) dr.mode_input();
-               else if (std::strncmp("q",s.c_str(),1)==0   
-                        || std::strncmp("q!",s.c_str(),2)==0  
-                        || std::strncmp("wq",s.c_str(),2)==0) {
-                  dr.mode_quit(s);
-                  break;
-               }
-               s = dr.mode_help();
+         dr.set_today();
+         std::string s {};
+         s = dr.mode_help();
+         for (;;) {
+            if (std::strncmp("i",s.c_str(),1)==0) dr.mode_input();
+            else if (std::strncmp("v",s.c_str(),1)==0) dr.mode_viewing();
+            else if (std::strncmp("q",s.c_str(),1)==0   
+                     || std::strncmp("q!",s.c_str(),2)==0  
+                     || std::strncmp("wq",s.c_str(),2)==0) {
+               dr.mode_quit(s);
+               break;
             }
+            else if (std::strncmp("set password",s.c_str(),12)==0)
+               dr.set_password();
+            s = dr.mode_help();
          }
-         else std::cout << "E: Не могу открыть файл дневника.\n";
       }
       else {
          std::string s {"q"};

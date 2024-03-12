@@ -52,8 +52,6 @@ namespace dr {
       bool mode_authorization();    // режим авторизации пользователя
       void mode_input();            // режим ввода записей дневника
       void mode_viewing();          // режим просмотра записей дневника
-      void buffer_write();          // пишет буффер записей дневника в файл
-      void buffer_delete();         // удаляет последнию введенную строку
       void set_password();          // установка пароля
    };
 }
