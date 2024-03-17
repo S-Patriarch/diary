@@ -17,6 +17,7 @@
 #include <list>
 #include <fstream>
 #include <cstdlib>
+#include <cstdio>
 #include <thread>
 #include <chrono>
 #include <sys/stat.h>
@@ -25,6 +26,7 @@
 namespace dr {
    class Diary final {
       std::string _f_diary = "/diary.log";
+      std::string _f_diary_temp = "/temp.log";
       std::string _f_shadow = "/shadow";
       std::string _f_rc = "/diaryrc";
       std::string _f_diary_path;
@@ -52,6 +54,7 @@ namespace dr {
       bool mode_authorization();    // режим авторизации пользователя
       void mode_input();            // режим ввода записей дневника
       void mode_viewing();          // режим просмотра записей дневника
+      void mode_delete();           // режим удаления записей дневника
       void set_password();          // установка пароля
    };
 }

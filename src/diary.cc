@@ -141,12 +141,12 @@ namespace dr {
       info_logo();
       std::cout << '\n'
                 << "Основные команды:\n";
-      std::cout << "  v  - режим просмотра записей дневника\n"
-                << "  i  - режим ввода записей дневника\n"
+      std::cout << "  i  - режим ввода записей дневника\n"
+                << "  v  - режим просмотра записей дневника\n"
+                << "  d  - режим удаления записей дневника\n"
                 << "  q  - выход из дневника\n"
                 << "  q! - выход без записи изменений\n"
-                << "  wq - выход с записью изменений\n"
-                << "  h  - вызов информации\n";
+                << "  wq - выход с записью изменений\n";
       std::cout << '\n'
                 << "Настройки:\n";
       std::cout << "  set password - установка пароля\n";
@@ -343,5 +343,59 @@ namespace dr {
          }
       } 
    }
+   //---------------------------------------------------------------------------
+   void Diary::mode_delete()
+      // режим удаления записей дневника
+   {
+      pl::Conio con;
+      std::cout << pl::mr::clrscr;
+      info_logo();
+      std::cout << '\n';
+      std::cout << pl::mr::bold 
+                << "-- УДАЛЕНИЕ --\n"
+                << pl::mr::reset;
+      std::cout << "Допустимые команды:\n"
+                << "  дд-мм-гггг - дата удаляемых записей\n"
+                << "  dd         - удаление всей истории дневника\n"
+                << "  exit       - выход из режима\n";
+      std::cout << '\n';
+
+      for (;;) {
+         std::cout << ":";
+         std::string str {};
+         str = con.get_line(11);
+         if (std::strncmp("exit",str.c_str(),4)==0) break;
+         else if (std::strncmp("dd",str.c_str(),2)==0) {
+            std::string fpath = _f_diary_path+_f_diary;
+            std::remove(fpath.c_str());
+            continue;
+         }
+         else {
+            std::string ifpath = _f_diary_path+_f_diary;
+            std::string ofpath = _f_diary_path+_f_diary_temp;
+
+            std::ifstream ifile(ifpath);
+            std::ofstream ofile(ofpath);
+
+            std::string line {};
+            while (std::getline(ifile,line)) {
+               if (std::strncmp(str.c_str(),line.c_str(),10)==0) {
+                  while (std::getline(ifile,line)) {
+                     if (std::strncmp(_delimiter.c_str(),line.c_str(),2)==0
+                        || _fsd.eof()) break;
+                  }
+               }
+               else ofile << line << '\n';
+            }
+
+            ifile.close();
+            ofile.close();
+            
+            std::remove(ifpath.c_str());
+            std::rename(ofpath.c_str(),ifpath.c_str());
+            continue;
+         }
+      } 
+   } 
 }
 

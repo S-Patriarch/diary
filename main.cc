@@ -22,6 +22,7 @@ int main(int argc, char** argv)
          for (;;) {
             if (std::strncmp("i",s.c_str(),1)==0) dr.mode_input();
             else if (std::strncmp("v",s.c_str(),1)==0) dr.mode_viewing();
+            else if (std::strncmp("d",s.c_str(),1)==0) dr.mode_delete();
             else if (std::strncmp("q",s.c_str(),1)==0   
                      || std::strncmp("q!",s.c_str(),2)==0  
                      || std::strncmp("wq",s.c_str(),2)==0) {
