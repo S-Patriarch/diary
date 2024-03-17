@@ -209,7 +209,7 @@ namespace dr {
                _fsd << lst;
             std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                       << _buffer.size() << "L, " 
-                      << get_size_buffer() << "B записано\n";
+                      << get_size_buffer() << "B записано.\n";
             _buffer.clear();
             _fsd.close();
          }
@@ -235,9 +235,9 @@ namespace dr {
                 << "  exit - выход из режима\n";
       std::cout << '\n';
 
-      std::string str {};
       for (;;) {
          std::cout << "> ";
+         std::string str {};
          str = con.get_line(160);
          _buffer.emplace_back(str);
          if (std::strncmp("exit",str.c_str(),4)==0) {
@@ -248,7 +248,7 @@ namespace dr {
             _buffer.pop_back();
             _buffer.pop_back();
             std::cout << pl::mr::bold << "W" << pl::mr::reset << ": "
-                      << "1L удалена\n";
+                      << "1L удалена.\n";
          }
          else if (std::strncmp("ww",str.c_str(),2)==0) {
             _buffer.pop_back();
@@ -262,7 +262,7 @@ namespace dr {
                      _fsd << lst;
                   std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                             << _buffer.size() << "L, " 
-                            << get_size_buffer() << "B записано\n";
+                            << get_size_buffer() << "B записано.\n";
                   _buffer.clear();
                }
                _fsd.close();
@@ -300,7 +300,7 @@ namespace dr {
                      _fsd << lst;
                   std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                             << _buffer.size() << "L, " 
-                            << get_size_buffer() << "B записано\n";
+                            << get_size_buffer() << "B записано.\n";
                   _buffer.clear();
                   _fsd.close();
                }
@@ -327,7 +327,7 @@ namespace dr {
          std::string str {};
          str = con.get_line(160);
          if (std::strncmp("exit",str.c_str(),4)==0) break;
-         else {
+         else if (str.size()==11) {
             if (!open_file_diary())
                std::cout << "E: Не могу открыть файл дневника.\n";
             else {
@@ -356,7 +356,7 @@ namespace dr {
                _fsd.close();
             }
          }
-      } 
+      }
    }
    //---------------------------------------------------------------------------
    void Diary::mode_delete()
@@ -383,9 +383,10 @@ namespace dr {
          else if (std::strncmp("dd",str.c_str(),2)==0) {
             std::string fpath = _f_diary_path+_f_diary;
             std::remove(fpath.c_str());
-            continue;
+            std::cout << pl::mr::bold << "W" << pl::mr::reset << ": "
+                      << "Вся история удалена.\n";
          }
-         else {
+         else if (str.size()==11) {
             std::string ifpath = _f_diary_path+_f_diary;
             std::string ofpath = _f_diary_path+_f_diary_temp;
 
@@ -393,22 +394,26 @@ namespace dr {
             std::ofstream ofile(ofpath);
 
             std::string line {};
+            bool flag {false};
             while (std::getline(ifile,line)) {
                if (std::strncmp(str.c_str(),line.c_str(),10)==0) {
                   while (std::getline(ifile,line)) {
                      if (std::strncmp(_delimiter.c_str(),line.c_str(),2)==0
                         || _fsd.eof()) break;
                   }
+                  flag = true;
                }
                else ofile << line << '\n';
             }
+            if (flag) 
+               std::cout << pl::mr::bold << "W" << pl::mr::reset << ": "
+                         << "Записи за требуемый день удалены.\n";
 
             ifile.close();
             ofile.close();
             
             std::remove(ifpath.c_str());
             std::rename(ofpath.c_str(),ifpath.c_str());
-            continue;
          }
       } 
    } 
