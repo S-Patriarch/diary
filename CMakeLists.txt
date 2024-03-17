@@ -18,9 +18,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(
    ${PROJECT_NAME} PRIVATE
-#   -lz
-#   -lm
-#   -ldl
    -lssl
    -lcrypto
 )
