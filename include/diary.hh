@@ -47,6 +47,7 @@ namespace dr {
       }
       ~Diary() noexcept = default;
       void set_today();
+      int get_size_buffer();
       bool mode_check_files();      // режим проверки служебных файлов
       bool open_file_diary();       // открытие файла дневника
       std::string mode_help();      // режим помощи

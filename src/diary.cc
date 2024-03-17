@@ -13,6 +13,18 @@
 namespace dr {
    void Diary::set_today() {_today = get_date();}
    //---------------------------------------------------------------------------
+   int Diary::get_size_buffer()
+      // возвращает размер текущего буффера в байтах
+   {
+      int res {};
+      std::string s {};
+      for (const auto& lst : _buffer) {
+         s = lst;
+         res += s.size();
+      }
+      return res;
+   }
+   //---------------------------------------------------------------------------
    bool Diary::mode_check_files()
       // режим проверки служебных файлов
       // если какого-то файла не оказывается, то он создается
@@ -152,7 +164,7 @@ namespace dr {
       std::cout << "  set password - установка пароля\n";
       std::cout << "\n:";
       std::string scom {};
-      scom = con.get_line(16);
+      scom = con.get_line(160);
       return scom;
    }
    //---------------------------------------------------------------------------
@@ -171,7 +183,7 @@ namespace dr {
                       << "(введите q!, чтобы обойти проверку).\n";
             std::string sq {};
             std::cout << ':';
-            sq = con.get_line(3);
+            sq = con.get_line(160);
             if (std::strncmp("q!",sq.c_str(),2)==0) {
                _buffer.clear();
                std::cout << pl::mr::clrscr;
@@ -193,10 +205,11 @@ namespace dr {
                _fsd << _delimiter << '\n' << _today  << '\n';
                _day_flag = true;
             }
-            for (const auto& lst : _buffer) 
+            for (const auto& lst : _buffer)  
                _fsd << lst;
             std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
-                      << _buffer.size() << "L записано\n";
+                      << _buffer.size() << "L, " 
+                      << get_size_buffer() << "B записано\n";
             _buffer.clear();
             _fsd.close();
          }
@@ -245,10 +258,11 @@ namespace dr {
                      _fsd << _delimiter << '\n' << _today  << '\n';
                      _day_flag = true;
                   }
-                  for (const auto& lst : _buffer) 
+                  for (const auto& lst : _buffer)  
                      _fsd << lst;
-                  std::cout << pl::mr::bold  << "W" << pl::mr::reset << ": " 
-                            << _buffer.size() << "L записано\n";
+                  std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
+                            << _buffer.size() << "L, " 
+                            << get_size_buffer() << "B записано\n";
                   _buffer.clear();
                }
                _fsd.close();
@@ -271,7 +285,7 @@ namespace dr {
             std::cout << '\n';
             std::cout << pl::mr::bold << "W" << pl::mr::reset
                       << ": Изменения не сохранены, сохранить y/n: ";
-            std::string yn = con.get_line(2);
+            std::string yn = con.get_line(160);
             if (std::strncmp("n",yn.c_str(),1)==0) {
                _buffer.clear();
                break;
@@ -282,10 +296,11 @@ namespace dr {
                      _fsd << _delimiter << '\n' << _today  << '\n';
                      _day_flag = true;
                   }
-                  for (const auto& lst : _buffer) 
+                  for (const auto& lst : _buffer)  
                      _fsd << lst;
-                  std::cout << pl::mr::bold  << "W" << pl::mr::reset << ": " 
-                            << _buffer.size() << "L записано\n";
+                  std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
+                            << _buffer.size() << "L, " 
+                            << get_size_buffer() << "B записано\n";
                   _buffer.clear();
                   _fsd.close();
                }
@@ -310,7 +325,7 @@ namespace dr {
       for (;;) {
          std::cout << ":";
          std::string str {};
-         str = con.get_line(11);
+         str = con.get_line(160);
          if (std::strncmp("exit",str.c_str(),4)==0) break;
          else {
             if (!open_file_diary())
@@ -363,7 +378,7 @@ namespace dr {
       for (;;) {
          std::cout << ":";
          std::string str {};
-         str = con.get_line(11);
+         str = con.get_line(160);
          if (std::strncmp("exit",str.c_str(),4)==0) break;
          else if (std::strncmp("dd",str.c_str(),2)==0) {
             std::string fpath = _f_diary_path+_f_diary;
