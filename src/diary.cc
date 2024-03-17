@@ -350,7 +350,7 @@ namespace dr {
                } 
                else {
                   for (const auto& lst : _buffer)
-                     std::cout << lst;
+                     std::cout << "> " << lst;
                   _buffer.clear();
                }
                _fsd.close();
