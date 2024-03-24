@@ -35,6 +35,7 @@ namespace dr {
       std::fstream _fsd; // файловый поток дневника
       std::list<std::string> _buffer; // буффер записей дневника
       bool _day_flag {false}; // флаг записи дня
+      bool _iscrypto {false}; // флаг шифрования
    public:
       Diary() 
       {

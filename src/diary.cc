@@ -2,6 +2,8 @@
 // (c) 2024 S-Patriarch
 //
 #include <chrono>
+#include <cstdio>
+#include <fstream>
 #include <pl/color.hh>
 #ifndef DIARY_HH
 #include "../include/diary.hh"
@@ -40,10 +42,34 @@ namespace dr {
 
          std::fstream fs;        
          for (const auto& s : arr) {
-            fs.open(s, std::ios::in | std::ios::out | std::ios::app);       
+            fs.open(s,std::ios::in | std::ios::out | std::ios::app);       
             if (!fs.is_open()) return false;
             fs.close();
          }
+
+         // установка файла конфигурации по уполчанию, если файл 
+         // конфигурации пуст
+         // в противнов случае файл конфигурации не трогаем, а лиш
+         // устанавливаем флаг шифрования по данным этого файла
+         std::string src = _f_diary_path+_f_rc;
+         std::fstream frc;
+         frc.open(src,std::ios::in | std::ios::out);
+         frc.seekg(0,std::ios::end);
+         if (frc.tellg()==0) {
+            frc.seekg(0,std::ios::beg);
+            frc << "set encryption false\n";
+            _iscrypto = false;
+         }
+         else {
+            frc.seekg(0,std::ios::beg);
+            std::string sf {"set engryption false"};
+            std::string st {"set encryption true"};
+            std::string line {};
+            std::getline(frc,line);
+            if (line==sf) _iscrypto = false;
+            else if (line==st) _iscrypto = true;
+         }
+         frc.close();
       }
       return true;
    }
