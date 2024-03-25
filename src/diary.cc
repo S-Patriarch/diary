@@ -1,10 +1,6 @@
 //
 // (c) 2024 S-Patriarch
 //
-#include <chrono>
-#include <cstdio>
-#include <fstream>
-#include <pl/color.hh>
 #ifndef DIARY_HH
 #include "../include/diary.hh"
 #endif
@@ -232,8 +228,7 @@ namespace dr {
                _fsd << _delimiter << '\n' << _today  << '\n';
                _day_flag = true;
             }
-            for (const auto& lst : _buffer)  
-               _fsd << lst;
+            for (const auto& lst : _buffer) _fsd << lst;
             std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                       << _buffer.size() << "L, " 
                       << get_size_buffer() << "B записано.\n";
@@ -285,8 +280,7 @@ namespace dr {
                      _fsd << _delimiter << '\n' << _today  << '\n';
                      _day_flag = true;
                   }
-                  for (const auto& lst : _buffer)  
-                     _fsd << lst;
+                  for (const auto& lst : _buffer) _fsd << lst;
                   std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                             << _buffer.size() << "L, " 
                             << get_size_buffer() << "B записано.\n";
@@ -323,8 +317,7 @@ namespace dr {
                      _fsd << _delimiter << '\n' << _today  << '\n';
                      _day_flag = true;
                   }
-                  for (const auto& lst : _buffer)  
-                     _fsd << lst;
+                  for (const auto& lst : _buffer) _fsd << lst;
                   std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                             << _buffer.size() << "L, " 
                             << get_size_buffer() << "B записано.\n";
@@ -376,8 +369,7 @@ namespace dr {
                             << ": Записи за искомый день отсутствуют.\n";
                } 
                else {
-                  for (const auto& lst : _buffer)
-                     std::cout << "> " << lst;
+                  for (const auto& lst : _buffer) std::cout << "> " << lst;
                   _buffer.clear();
                }
                _fsd.close();
@@ -444,5 +436,47 @@ namespace dr {
          }
       } 
    } 
-}
+   //---------------------------------------------------------------------------
+   void Diary::set_crypto(bool isflagcrypto)
+      // установка / снятие флага шифрования записей дневника
+   {
+      std::string s {};
+      if (isflagcrypto) {
+         _iscrypto = true;
+         s = "Режим шифрования установлен.";
+      }
+      else if (!isflagcrypto) {
+         _iscrypto = false;
+         s = "Режим шифрования снят.";
+      }
 
+      std::vector<std::string> v;
+      std::string line {};
+      std::fstream frc;
+
+      frc.open(src,std::ios::in);
+      while (std::getline(frc,line)) {
+         if (frc.eof()) break;
+         else v.emplace_back(line);
+      }
+      frc.close();
+
+      std::string sf {"set engryption false"};
+      std::string st {"set encryption true"};
+
+      for (auto& it : v) 
+         if (it==sf || it==st) {
+            if (isflagcrypto) it = st;
+            else if (!isflagcrypto) it = sf;
+         }
+
+      frc.open(src,std::ios::out);
+      for (const auto& it : v) frc << it << '\n';
+      frc.close();      
+
+      std::cout << pl::mr::crsh;
+      std::cout << pl::mr::bold << "\nW" << pl::mr::reset << ": " << s << '\n';
+      std::this_thread::sleep_for(std::chrono::seconds{3}); 
+      std::cout << pl::mr::crss;
+   }
+}

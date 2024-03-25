@@ -1,17 +1,15 @@
 //
 // (c) 2024 S-Patriarch
 //
-// Электронный дневник. Версия 1.0.0
+// Электронный дневник. Версия 1.1.0
 // Данный проект реализуется под дивизом: "Слабоумие и Отвага".
 //
 #include "include/diary.hh"
-#include <vector>
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-   std::vector<std::string> args(argv,argv+argc);
-
    dr::Diary dr;
+
    if (!dr.mode_check_files()) 
       std::cout << "E: Сбой при проверке служебных файлов.\n";
    else {
@@ -31,6 +29,10 @@ int main(int argc, char** argv)
             }
             else if (std::strncmp("set password",s.c_str(),12)==0)
                dr.set_password();
+            else if (std::strncmp("set encryption false",s.c_str(),20)==0)
+               dr.set_crypto(false);
+            else if (std::strncmp("set encryption true",s.c_str(),19)==0)
+               dr.set_crypto(true);
             s = dr.mode_help();
          }
       }

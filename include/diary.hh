@@ -10,18 +10,16 @@
 #ifndef PL_COLOR_HH
 #include "pl/color.hh"
 #endif
-#ifndef PL_BAR_HH
-#include "pl/bar.hh"
-#endif
 
 #include <list>
+#include <array>
+#include <vector>
 #include <fstream>
 #include <cstdlib>
 #include <cstdio>
 #include <thread>
 #include <chrono>
 #include <sys/stat.h>
-#include <array>
 ////////////////////////////////////////////////////////////////////////////////
 namespace dr {
    class Diary final {
@@ -58,6 +56,7 @@ namespace dr {
       void mode_viewing();          // режим просмотра записей дневника
       void mode_delete();           // режим удаления записей дневника
       void set_password();          // установка пароля
+      void set_crypto(bool);        // установка флага шифрования
    };
 }
 #endif // DIARY_HH
