@@ -1,6 +1,7 @@
 //
 // (c) 2024 S-Patriarch
 //
+#include <fstream>
 #ifndef DIARY_HH
 #include "../include/diary.hh"
 #endif
@@ -183,8 +184,8 @@ namespace dr {
                 << "  wq - выход с записью изменений\n";
       std::cout << '\n'
                 << "Настройки:\n";
-      std::cout << "  set password                 - установка пароля\n"
-                << "  set encryption [false][true] - установка шифрования\n";
+      std::cout << "  set encryption [false][true] - установка шифрования\n"
+                << "  set password                 - установка пароля\n";
       std::cout << "\n:";
       std::string scom {};
       scom = con.get_line(160);
@@ -440,43 +441,38 @@ namespace dr {
    void Diary::set_crypto(bool isflagcrypto)
       // установка / снятие флага шифрования записей дневника
    {
+      std::vector<std::string> v;
+      std::string line {};
+      std::string src = _f_diary_path+_f_rc;
+
+      std::ifstream frcin(src);
+      while (std::getline(frcin,line)) {
+         if (frcin.eof()) break;
+         else v.emplace_back(line);
+      }
+      frcin.close();
+      std::remove(src.c_str());
+
       std::string s {};
       if (isflagcrypto) {
          _iscrypto = true;
+         v[0] = "set encryption true";
          s = "Режим шифрования установлен.";
       }
       else if (!isflagcrypto) {
          _iscrypto = false;
+         v[0] = "set encryption false";
          s = "Режим шифрования снят.";
       }
 
-      std::vector<std::string> v;
-      std::string line {};
-      std::fstream frc;
-
-      frc.open(src,std::ios::in);
-      while (std::getline(frc,line)) {
-         if (frc.eof()) break;
-         else v.emplace_back(line);
-      }
-      frc.close();
-
-      std::string sf {"set engryption false"};
-      std::string st {"set encryption true"};
-
-      for (auto& it : v) 
-         if (it==sf || it==st) {
-            if (isflagcrypto) it = st;
-            else if (!isflagcrypto) it = sf;
-         }
-
-      frc.open(src,std::ios::out);
-      for (const auto& it : v) frc << it << '\n';
-      frc.close();      
+      std::ofstream frcout(src);
+      for (const auto& it : v) frcout << it << '\n';
+      frcout.close();      
 
       std::cout << pl::mr::crsh;
-      std::cout << pl::mr::bold << "\nW" << pl::mr::reset << ": " << s << '\n';
+      std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " << s << '\n';
       std::this_thread::sleep_for(std::chrono::seconds{3}); 
       std::cout << pl::mr::crss;
    }
 }
+
