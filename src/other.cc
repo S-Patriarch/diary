@@ -51,5 +51,27 @@ namespace dr {
       std::string res(buffer);
       return res;
    }
+   //---------------------------------------------------------------------------
+   std::string encrypt(std::string s)
+      // шифрование строки
+      // возвращает шифрстроку
+   {
+      char b {'*'};
+      std::vector<char> v {s.begin(),s.end()};
+      for (int i=0; i!=(int)s.length(); i++) v[i] = v[i]^b^b^b;
+      std::string res {v.begin(),v.end()};
+      return res;
+   }
+   //---------------------------------------------------------------------------
+   std::string decrypt(std::string s)
+      // расшифровка шифрстроки
+      // возвращает строку
+   {
+      char b {'*'};
+      std::vector<char> v {s.begin(),s.end()};
+      for (int i=0; i!=(int)s.length(); i++) v[i] = v[i]^b;
+      std::string res {v.begin(),v.end()};
+      return res;
+   }
 }
 
