@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <openssl/sha.h>
 #include <iomanip>
 #include <chrono>

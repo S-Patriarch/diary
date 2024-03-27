@@ -58,7 +58,8 @@ namespace dr {
    {
       char b {'*'};
       std::vector<char> v {s.begin(),s.end()};
-      for (int i=0; i!=(int)s.length(); i++) v[i] = v[i]^b^b^b;
+      for (int i=0; i!=(int)s.length(); i++) 
+         if (v[i]!=' ' && v[i]!='\n') v[i] = v[i]^b^b^b;
       std::string res {v.begin(),v.end()};
       return res;
    }
@@ -69,7 +70,8 @@ namespace dr {
    {
       char b {'*'};
       std::vector<char> v {s.begin(),s.end()};
-      for (int i=0; i!=(int)s.length(); i++) v[i] = v[i]^b;
+      for (int i=0; i!=(int)s.length(); i++) 
+         if (v[i]!=' ' && v[i]!='\n') v[i] = v[i]^b;
       std::string res {v.begin(),v.end()};
       return res;
    }

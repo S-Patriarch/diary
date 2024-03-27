@@ -249,9 +249,10 @@ namespace dr {
       std::cout << pl::mr::clrscr;
       info_logo();
       std::cout << '\n';
-      std::cout << pl::mr::bold 
-                << "-- ВСТАВКА --\n"
-                << pl::mr::reset;
+      std::cout << pl::mr::bold;
+      if (_iscrypto) std::cout << "-- ВСТАВКА С ШИФРОВАНИЕМ --\n";
+      else if (!_iscrypto) std::cout << "-- ВСТАВКА БЕЗ ШИФРОВАНИЯ --\n";
+      std::cout << pl::mr::reset;
       std::cout << "Допустимые команды:\n"
                 << "  dd   - удаление последней введенной строки\n"
                 << "  ww   - запись введенной информации\n"
@@ -279,9 +280,14 @@ namespace dr {
                if (!_buffer.empty()) {
                   if (!_day_flag) {
                      _fsd << _delimiter << '\n' << _today  << '\n';
+                     if (_iscrypto) _fsd << "1" << '\n';
+                     else if (!_iscrypto) _fsd << "0" << '\n';
                      _day_flag = true;
                   }
-                  for (const auto& lst : _buffer) _fsd << lst;
+                  for (const auto& lst : _buffer) {
+                     if (_iscrypto) _fsd << encrypt(lst);
+                     else if (!_iscrypto) _fsd << lst;
+                  }
                   std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                             << _buffer.size() << "L, " 
                             << get_size_buffer() << "B записано.\n";
@@ -316,9 +322,14 @@ namespace dr {
                if (open_file_diary()) {
                   if (!_day_flag) {
                      _fsd << _delimiter << '\n' << _today  << '\n';
+                     if (_iscrypto) _fsd << "1" << '\n';
+                     else if (!_iscrypto) _fsd << "0" << '\n';
                      _day_flag = true;
                   }
-                  for (const auto& lst : _buffer) _fsd << lst;
+                  for (const auto& lst : _buffer) {
+                     if (_iscrypto) _fsd << encrypt(lst);
+                     else if (!_iscrypto) _fsd << lst;
+                  }
                   std::cout << pl::mr::bold << "W" << pl::mr::reset << ": " 
                             << _buffer.size() << "L, " 
                             << get_size_buffer() << "B записано.\n";
@@ -353,14 +364,19 @@ namespace dr {
                std::cout << "E: Не могу открыть файл дневника.\n";
             else {
                std::string line {};
+               bool isfcr {false};
                while (std::getline(_fsd,line)) {
                   if (std::strncmp(str.c_str(),line.c_str(),10)==0) {
+                     std::getline(_fsd,line);
+                     if (std::strncmp("1",line.c_str(),1)==0) isfcr = true;
+                     else if (std::strncmp("0",line.c_str(),1)==0) isfcr = false;
                      while (std::getline(_fsd,line)) {
                         if (std::strncmp(_delimiter.c_str(),line.c_str(),2)==0
                            || _fsd.eof()) break;
                         else {
                            std::string sl = std::string(line)+'\n';
-                           _buffer.emplace_back(sl);
+                           if (isfcr) _buffer.emplace_back(decrypt(sl));
+                           else if (!isfcr) _buffer.emplace_back(sl);
                         }
                      }
                   }
