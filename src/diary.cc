@@ -188,7 +188,7 @@ namespace dr {
                 << "  set password                 - установка пароля\n";
       std::cout << "\n:";
       std::string scom {};
-      scom = con.get_line(160);
+      scom = con.get_line(30);
       return scom;
    }
    //---------------------------------------------------------------------------
@@ -207,7 +207,7 @@ namespace dr {
                       << "(введите q!, чтобы обойти проверку).\n";
             std::string sq {};
             std::cout << ':';
-            sq = con.get_line(160);
+            sq = con.get_line(30);
             if (std::strncmp("q!",sq.c_str(),2)==0) {
                _buffer.clear();
                std::cout << pl::mr::clrscr;
@@ -262,7 +262,7 @@ namespace dr {
       for (;;) {
          std::cout << "> ";
          std::string str {};
-         str = con.get_line(160);
+         str = con.get_line(1024);
          _buffer.emplace_back(str);
          if (std::strncmp("exit",str.c_str(),4)==0) {
             _buffer.pop_back();
@@ -313,7 +313,7 @@ namespace dr {
             std::cout << '\n';
             std::cout << pl::mr::bold << "W" << pl::mr::reset
                       << ": Изменения не сохранены, сохранить y/n: ";
-            std::string yn = con.get_line(160);
+            std::string yn = con.get_line(30);
             if (std::strncmp("n",yn.c_str(),1)==0) {
                _buffer.clear();
                break;
@@ -351,15 +351,48 @@ namespace dr {
                 << pl::mr::reset;
       std::cout << "Допустимые команды:\n"
                 << "  дд-мм-гггг - дата просматриваемых записей\n"
+                << "  a          - список всех имеющихся дат записей\n"
                 << "  exit       - выход из режима\n";
       std::cout << '\n';
 
-      for (;;) {
+      for (;;) {   
          std::cout << ":";
-         std::string str {};
-         str = con.get_line(160);
+         std::string str {};   
+         str = con.get_line(30);
          if (std::strncmp("exit",str.c_str(),4)==0) break;
-         else if (str.size()==11) {
+         else if (std::strncmp("a",str.c_str(),1)==0) {
+            if (!open_file_diary())
+               std::cout << "E: Не могу открыть файл дневника.\n";
+            else {
+               _set_all.clear();
+               std::string line {};
+               while (std::getline(_fsd,line)) {
+                  if (_fsd.eof()) break;
+                  else if (std::strncmp(_delimiter.c_str(),line.c_str(),2)==0) {
+                     std::getline(_fsd,line);
+                     std::string sl = std::string(line);
+                     _set_all.emplace(sl);
+                  }
+               }
+               _fsd.close();
+               if (!_set_all.empty()) {
+                  unsigned int i {};
+                  for (const auto& el : _set_all) {
+                     if (i==7) {
+                        std::cout << '\n';
+                        i = 0;
+                     }
+                     std::cout << el << " | ";
+                     i++;
+                  }
+                  std::cout << '\n';
+               }
+            }
+         }
+         else if (std::strncmp("0",str.c_str(),1)==0 ||
+                  std::strncmp("1",str.c_str(),1)==0 ||
+                  std::strncmp("2",str.c_str(),1)==0 ||
+                  std::strncmp("3",str.c_str(),1)==0) {
             if (!open_file_diary())
                std::cout << "E: Не могу открыть файл дневника.\n";
             else {
@@ -392,7 +425,7 @@ namespace dr {
                _fsd.close();
             }
          }
-      }
+     }
    }
    //---------------------------------------------------------------------------
    void Diary::mode_delete()
@@ -414,7 +447,7 @@ namespace dr {
       for (;;) {
          std::cout << ":";
          std::string str {};
-         str = con.get_line(160);
+         str = con.get_line(11);
          if (std::strncmp("exit",str.c_str(),4)==0) break;
          else if (std::strncmp("dd",str.c_str(),2)==0) {
             std::string fpath = _f_diary_path+_f_diary;
@@ -491,4 +524,3 @@ namespace dr {
       std::cout << pl::mr::crss;
    }
 }
-

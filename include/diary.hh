@@ -12,6 +12,7 @@
 #endif
 
 #include <list>
+#include <set>
 #include <array>
 #include <vector>
 #include <fstream>
@@ -32,6 +33,7 @@ namespace dr {
       std::string _today {}; // дата текущего дня
       std::fstream _fsd; // файловый поток дневника
       std::list<std::string> _buffer; // буффер записей дневника
+      std::set<std::string> _set_all; // коллекция всех дат записей дневника
       bool _day_flag {false}; // флаг записи дня
       bool _iscrypto {false}; // флаг шифрования
    public:
